@@ -8,6 +8,9 @@ Une simulation du jeu de la vie
 # pourvoir dessiner/effacer à la main
 # changer la couleur des cellules immobiles
 # gerer autrement taille_x et taille_y
+# ajouter compteur de tours, temps/tour
+# multithread (un regle 1 , l'autre regle 2)
+# Afficher en couleur différentes les naissances et morts (et rafraichir avant maj)
 
 import time
 import os
@@ -152,21 +155,21 @@ class Plateau(object):
         if position.x >= self.largeur:
             position = P(0, position.y) #On sait que l'on n'est qu'a 1 case maxi d'un bord!
         elif position.x < 0:
-            position = P(self.largeur, position.y) #On sait que l'on n'est qu'a 1 case maxi d'un bord!
+            position = P(self.largeur-1, position.y) #On sait que l'on n'est qu'a 1 case maxi d'un bord!
         if position.y >= self.hauteur:
             position = P(position.x,0) #On sait que l'on n'est qu'a 1 case maxi d'un bord!
         elif position.y < 0:
-            position = P(position.x, self.hauteur) #On sait que l'on n'est qu'a 1 case maxi d'un bord!
+            position = P(position.x, self.hauteur-1) #On sait que l'on n'est qu'a 1 case maxi d'un bord!
         return position
 
     def aleat_polulate(self, taux):
         '''remplit aleatoirement le Plateau
             taux : entre 0 (peu de cellules) et 1 (un max de cellules)
         '''
-        for x in range(self.largeur):
-            for y in range(self.hauteur):
+        for x in range(int(self.largeur / 2)):
+            for y in range(int(self.hauteur / 2)):
                 if random.random()< taux:
-                    self.add(P(x,y))
+                    self.add(P(int(self.largeur / 4) + x,int(self.hauteur / 4) + y))
 
 
 class Cellule(object):
@@ -224,6 +227,6 @@ if __name__ == "__main__":
     #for i in range(n):
         #plateau.add(P(int(plateau.largeur/2 - n/2 )+i,int(plateau.hauteur / 2)))
     #Un planeur
-    #plateau.add([P(3,11),P(1,12),P(3,12),P(2,13),P(3,13)])
-    plateau.aleat_polulate(0.3)
+    plateau.add([P(3,11),P(1,12),P(3,12),P(2,13),P(3,13)])
+    plateau.aleat_polulate(0.2)
     plateau.root.mainloop()
