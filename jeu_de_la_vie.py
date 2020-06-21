@@ -1,17 +1,34 @@
 # coding: utf-8
+'''
+Une simulation du jeu de la vie
+'''
+
+#TODO (si on veut)
+# - des boutons pour créer aléatoirement, RAZ, pause
+# pourvoir dessiner/effacer à la main
+#
+
 import time
 import os
 import random
+from tkinter import *
 
 
 class Plateau(object):
     '''Le plateau de jeu
     '''
-    def __init__(self, largeur=400, hauteur=400):
+    def __init__(self, largeur=400, hauteur=400, taille_x = 5, taille_y = 5):
         self.largeur = largeur
         self.hauteur = hauteur
         self.cellules = {} # {(x,y) : Cellule(), ...}
         self.tour = 0
+        self.root = Tk()
+        self.root.title('Le jeu de la vie')
+        self.aire = Canvas(self.root, height = self.hauteur * taille_y, width = self.largeur * taille_x)
+        self.aire.grid()
+        Button(self.root, text = "Go!", command = self.run).grid()
+
+
 
     def add(self, positions):
         '''Ajout une cellule ou une liste de cellules
@@ -19,10 +36,10 @@ class Plateau(object):
         if type(positions) != list:
             positions = [positions]
         for position in positions:
-            self.cellules[position] = Cellule(True)
+            self.cellules[position] = Cellule(self.aire, position,True)
 
     def __repr__(self):
-        '''On perd ici l'interet du dict pour les cellules!!!
+        '''juste pour mode console
         '''
         txt = ""
         for y in range(self.hauteur):
@@ -38,34 +55,23 @@ class Plateau(object):
     def run(self):
         '''Loop forever
         '''
-        print(self)
-        input("Press Enter to continue...")
+        #print(self)
+        #input("Press Enter to continue...")
         while True:
             self.un_tour()
-            #time.sleep(1)
-            #input("Press Enter to continue...")
+            self.root.update()
+
 
     def un_tour(self):
         ''' génère un tour complet
         '''
         #debut = time.time()
         self.tour += 1
-        print("Tour n°%s"%self.tour)
+        #print("Tour n°%s"%self.tour)
         self.regle2()
-        #temps_regle2 = time.time() - debut
-        #print(self)
         self.regle1()
-        #temps_regle1 = time.time() - debut - temps_regle2
-        #print(self)
         self.naissances()
-        #temps_naissance = time.time() - debut - temps_regle2 - temps_regle1
-        #print(self)
         self.clean()
-        #temps_clean = time.time() - debut - temps_regle2 - temps_regle1 - temps_naissance
-        self.print()
-        #temps_print = time.time() - debut - temps_regle2 - temps_regle1 - temps_naissance - temps_clean
-        #with open("temps.txt", 'a') as file:
-        #    file.write(f"{self.tour};{temps_regle2};{temps_regle1};{temps_naissance};{temps_clean};{temps_print}\n")
 
     def print(self):
         txt = str(self)
@@ -77,16 +83,14 @@ class Plateau(object):
             Si cellule morte (ou pas de cellule dans notre cas) a exactement 3 voisines
             Alors est devient vivante.
         '''
-        #print("règle n° 1...")
         for position_vide in self.positions_vides():
             if self.nb_voisines(position_vide)==3:
-                self.cellules[position_vide]= Cellule()
+                self.cellules[position_vide]= Cellule(self.aire, position_vide)
 
     def regle2(self):
         '''Applique la règle 2 :
             Une cellule vivante le reste uniqument si elle a 2 ou 3 voisines exactement
         '''
-        #print("règle n° 2...")
         for position in self.cellules:
             if self.nb_voisines(position) not in [2,3]:
                 self.cellules[position].meurt()
@@ -94,7 +98,6 @@ class Plateau(object):
     def clean(self):
         '''Supprime les cellules mortes
         '''
-        #print("Clean...")
         for position in list(self.cellules.keys()):
             if not self.cellules[position].vivante:
                 del self.cellules[position]
@@ -102,7 +105,6 @@ class Plateau(object):
     def naissances(self):
         '''transforme les cellules en cours de naissance par des cellules vivantes
         '''
-        #print("naissances...")
         for cellule in [cellule for cellule in self.cellules.values() if cellule.vivante is None]:
             cellule.vivante = True
 
@@ -173,16 +175,21 @@ class Cellule(object):
         -   False : est vivante, mais va mourrir au tour suivant
         -   None : en cours de naissance
     '''
-    def __init__(self, vivante = None):
+    def __init__(self, canvas, position, vivante = None):
         self.vivante = vivante
+        self.canvas = canvas
+        self.marque = self.canvas.create_oval(5*position.x, 5*position.y, 5*position.x+5, 5*position.y+5, fill="khaki")
 
     def naissance(self):
         self.vivante = True
 
     def meurt(self):
         self.vivante = False
+        self.canvas.delete(self.marque)
 
     def __repr__(self):
+        '''Pour mode console (obsolete)
+        '''
         if self.vivante is None:
             #return "😨"
             return "O"
@@ -211,11 +218,11 @@ class P(tuple):
         return self[1]
 
 if __name__ == "__main__":
-    plateau = Plateau(200,78)
+    plateau = Plateau(200,100)
     #n=24
     #for i in range(n):
         #plateau.add(P(int(plateau.largeur/2 - n/2 )+i,int(plateau.hauteur / 2)))
     #Un planeur
     #plateau.add([P(3,11),P(1,12),P(3,12),P(2,13),P(3,13)])
     plateau.aleat_polulate(0.3)
-    plateau.run()
+    plateau.root.mainloop()
