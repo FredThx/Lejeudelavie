@@ -32,7 +32,6 @@ class Plateau(object):
                     ligne += str(self.cellules[P(x,y)])
                 else:
                     ligne += " "
-            print(ligne)
             txt += ligne + "\n"
         return txt
 
