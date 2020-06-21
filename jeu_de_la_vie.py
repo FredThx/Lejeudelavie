@@ -6,7 +6,8 @@ Une simulation du jeu de la vie
 #TODO (si on veut)
 # - des boutons pour créer aléatoirement, RAZ, pause
 # pourvoir dessiner/effacer à la main
-#
+# changer la couleur des cellules immobiles
+# gerer autrement taille_x et taille_y
 
 import time
 import os
@@ -218,7 +219,7 @@ class P(tuple):
         return self[1]
 
 if __name__ == "__main__":
-    plateau = Plateau(200,100)
+    plateau = Plateau(300,180)
     #n=24
     #for i in range(n):
         #plateau.add(P(int(plateau.largeur/2 - n/2 )+i,int(plateau.hauteur / 2)))
